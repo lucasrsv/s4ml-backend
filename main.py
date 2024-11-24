@@ -55,17 +55,6 @@ def download_file_from_s3(bucket_name, s3_key):
     s3_client.download_fileobj(bucket_name, s3_key, file_obj)
     file_obj.seek(0)
     return file_obj
-        
-embeddings_file = download_file_from_s3(AWS_BUCKET_NAME, S3_EMBEDS_KEY)
-embeddings = np.load(embeddings_file)['array_data']
-
-df_file = download_file_from_s3(AWS_BUCKET_NAME, S3_DF_KEY)
-df_data = pd.read_csv(df_file, compression='gzip')
-
-# Initialize FAISS index
-embed_length = embeddings.shape[1]
-faiss_index = faiss.IndexFlatL2(embed_length)
-faiss_index.add(embeddings)
 
 # CORS Configuration
 origins = [
@@ -103,12 +92,33 @@ class Topic(BaseModel):
     topic: str
     score: float
 
+# Initialize global variables
+faiss_index = None
+df_data = None
+
+# Load embeddings and DataFrame on startup
+@app.on_event("startup")
+def load_faiss_index():
+    # Download embeddings and DataFrame from S3
+    embeddings_file = download_file_from_s3(AWS_BUCKET_NAME, S3_EMBEDS_KEY)
+    embeddings = np.load(embeddings_file)['array_data']
+    
+    # Initialize FAISS index
+    embed_length = embeddings.shape[1]
+    global faiss_index
+    faiss_index = faiss.IndexFlatL2(embed_length)
+    faiss_index.add(embeddings)
+
+    # Download and load DataFrame
+    df_file = download_file_from_s3(AWS_BUCKET_NAME, S3_DF_KEY)
+    global df_data
+    df_data = pd.read_csv(df_file, compression='gzip')
+
 def run_faiss_search(query_text, top_k):
     query = [query_text]
     query_embedding = model.encode(query)
     scores, index_vals = faiss_index.search(query_embedding, top_k)
     return index_vals[0]  # Return the list of top_k indices
-
 
 def run_rerank(index_vals_list, query_text):
     chunk_list = list(df_data['prepared_text'])
@@ -135,7 +145,6 @@ def run_rerank(index_vals_list, query_text):
             "abstract": df_sorted.loc[i, 'pred_text']
         })
     return pred_list
-
 
 @app.post("/search", response_model=List[SearchResult])
 def search_arxiv(request: SearchRequest):
