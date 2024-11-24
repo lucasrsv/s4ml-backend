@@ -69,7 +69,7 @@ faiss_index.add(embeddings)
 
 # CORS Configuration
 origins = [
-    "https://se4ml-frontend-aea8e8a17cba.herokuapp.com",
+    "https://se4ml-frontend-bkhwixo3t-lucasrsvs-projects.vercel.app",
     "http://localhost",  # Local development
     "http://localhost:3000",  # React app or similar running on port 3000
     "https://example.com",  # Add any other domains that should be allowed
