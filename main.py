@@ -14,11 +14,13 @@ import google.cloud.logging
 from google.cloud.logging.handlers import CloudLoggingHandler
 
 # Configure Google Cloud Logging
+logging.basicConfig(level=logging.DEBUG)
 client = google.cloud.logging.Client()
 handler = CloudLoggingHandler(client)
 cloud_logger = logging.getLogger('cloudLogger')
 cloud_logger.setLevel(logging.INFO)
 cloud_logger.addHandler(handler)
+logger = logging.getLogger(__name__)
 
 # FastAPI app
 app = FastAPI()
@@ -57,7 +59,7 @@ cloud_logger.info("Models initialized successfully.")
 
 # CORS Configuration
 origins = [
-    "https://se4ml-frontend-bkhwixo3t-lucasrsvs-projects.vercel.app",
+    "https://se4ml-frontend.vercel.app",
     "http://localhost",  # Local development
     "http://localhost:3000",  # React app or similar running on port 3000
     "https://example.com",  # Add any other domains that should be allowed
@@ -88,6 +90,11 @@ class SearchResult(BaseModel):
 # Initialize global variables
 faiss_index = None
 df_data = None
+
+@app.get("/")
+def read_root():
+    logger.info("Root endpoint called")
+    return {"message": "Hello, World!"}
 
 # Load embeddings and DataFrame on startup
 @app.on_event("startup")
