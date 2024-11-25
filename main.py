@@ -14,13 +14,11 @@ import google.cloud.logging
 from google.cloud.logging.handlers import CloudLoggingHandler
 
 # Configure Google Cloud Logging
-logging.basicConfig(level=logging.DEBUG)
 client = google.cloud.logging.Client()
 handler = CloudLoggingHandler(client)
 cloud_logger = logging.getLogger('cloudLogger')
 cloud_logger.setLevel(logging.INFO)
 cloud_logger.addHandler(handler)
-logger = logging.getLogger(__name__)
 
 # FastAPI app
 app = FastAPI()
