@@ -91,7 +91,6 @@ df_data = None
 
 @app.get("/")
 def read_root():
-    logger.info("Root endpoint called")
     return {"message": "Hello, World!"}
 
 # Load embeddings and DataFrame on startup
