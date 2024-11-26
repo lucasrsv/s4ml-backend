@@ -47,6 +47,9 @@ jobs:
 
           instance_class: F2
           " > app.yaml
+          
+      - name: Debug app.yaml content
+        run: cat app.yaml
 
       - name: Checkout code
         uses: actions/checkout@v3
