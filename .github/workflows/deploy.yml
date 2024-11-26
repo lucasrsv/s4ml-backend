@@ -20,7 +20,12 @@ jobs:
           service_account_key: ${{ secrets.GOOGLE_DEPLOY_CREDENTIALS }}
 
       - name: Authenticate with Google Cloud
-        run: gcloud auth activate-service-account --key-file=${{ secrets.GOOGLE_DEPLOY_CREDENTIALS }}
+        env:
+          GOOGLE_DEPLOY_CREDENTIALS: ${{ secrets.GOOGLE_DEPLOY_CREDENTIALS }}
+        run: |
+          echo "$GOOGLE_DEPLOY_CREDENTIALS" > keyfile.json
+          gcloud auth activate-service-account --key-file=keyfile.json
+
 
       - name: Deploy to App Engine
         run: gcloud app deploy --quiet
