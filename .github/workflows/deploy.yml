@@ -10,6 +10,9 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      - name: Check current working directory
+        run: pwd
+
       - name: Create app.yaml dynamically
         env:
           AWS_ACCESS_KEY: ${{ secrets.AWS_ACCESS_KEY }}
@@ -47,7 +50,7 @@ jobs:
 
       - name: Checkout code
         uses: actions/checkout@v3
-      
+
       - name: Set up Google Cloud SDK
         uses: google-github-actions/setup-gcloud@v2
         with:
@@ -60,7 +63,6 @@ jobs:
         run: |
           echo "$GOOGLE_DEPLOY_CREDENTIALS" > keyfile.json
           gcloud auth activate-service-account --key-file=keyfile.json
-
 
       - name: Deploy to App Engine
         run: gcloud app deploy --quiet
