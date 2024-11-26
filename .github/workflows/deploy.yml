@@ -1,34 +1,26 @@
-name: Deploy to Elastic Beanstalk
+name: Deploy to Google App Engine
 
 on:
   push:
     branches:
-      - main  # Ou o nome do branch que você quer usar para deploy
+      - main
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
-    
+
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v3
+      - name: Checkout code
+        uses: actions/checkout@v3
 
-    - name: Set up AWS CLI
-      uses: aws-actions/configure-aws-credentials@v1
-      with:
-        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY_ID }}
-        aws-region: us-east-2
-    
-    - name: Install dependencies
-      run: |
-        python -m pip install --upgrade pip
-        pip install -r requirements.txt
+      - name: Set up Google Cloud SDK
+        uses: google-github-actions/setup-gcloud@v2
+        with:
+          project_id: ${{ secrets.GOOGLE_PROJECT_ID }}
+          service_account_key: ${{ secrets.GOOGLE_DEPLOY_CREDENTIALS }}
 
-    - name: Zip application source code
-      run: zip -r my-application.zip .
+      - name: Authenticate with Google Cloud
+        run: gcloud auth activate-service-account --key-file=${{ secrets.GOOGLE_DEPLOY_CREDENTIALS }}
 
-    - name: Deploy to Elastic Beanstalk
-      run: |
-        aws elasticbeanstalk create-application-version --application-name your-application-name --version-label $GITHUB_SHA --source-bundle S3Bucket="se4ml-data",S3Key="my-application.zip"
-        aws elasticbeanstalk update-environment --environment-name your-environment-name --version-label $GITHUB_SHA
+      - name: Deploy to App Engine
+        run: gcloud app deploy --quiet
