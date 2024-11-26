@@ -19,8 +19,8 @@ readiness_check:
   app_start_timeout_sec: 600
   
 env_variables:
-  AWS_ACCESS_KEY: 'key'
-  AWS_SECRET_KEY: 'key'
+  AWS_ACCESS_KEY: ${{ secrets.AWS_ACCESS_KEY_ID }}
+  AWS_SECRET_KEY: ${{ secrets.AWS_SECRET_KEY_ID }}
   AWS_BUCKET_NAME: "se4ml-data"
   AWS_REGION: "us-east-2"
 
