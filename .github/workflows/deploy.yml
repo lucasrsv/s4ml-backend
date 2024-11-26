@@ -13,41 +13,6 @@ jobs:
       - name: Check current working directory
         run: pwd
 
-      - name: Create app.yaml dynamically
-        env:
-          AWS_ACCESS_KEY: ${{ secrets.AWS_ACCESS_KEY }}
-          AWS_SECRET_KEY: ${{ secrets.AWS_SECRET_KEY }}
-        run: |
-          echo "
-          runtime: python
-          env: flex
-          entrypoint: gunicorn -k uvicorn.workers.UvicornWorker main:app
-
-          runtime_config:
-              operating_system: 'ubuntu22'
-              runtime_version: '3.12'
-
-          resources:
-            cpu: 2
-            memory_gb: 3.6
-            disk_size_gb: 50
-
-          readiness_check:
-            check_interval_sec: 35
-            timeout_sec: 30
-            failure_threshold: 3
-            success_threshold: 1
-            app_start_timeout_sec: 600
-
-          env_variables:
-            AWS_ACCESS_KEY: '${AWS_ACCESS_KEY}'
-            AWS_SECRET_KEY: '${AWS_SECRET_KEY}'
-            AWS_BUCKET_NAME: 'se4ml-data'
-            AWS_REGION: 'us-east-2'
-
-          instance_class: F2
-          " > app.yaml
-          
       - name: Debug app.yaml content
         run: cat app.yaml
 
